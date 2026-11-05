@@ -53,7 +53,9 @@ public class FileManager
         {
             try
             {
-                File.Delete(Path.Combine(this._targetPath, path));
+                string fullTargetPath = Path.Combine(this._targetPath, path);
+                File.Delete(fullTargetPath);
+                _logger.LogFileDelete(fullTargetPath);
             }
             catch (Exception e)
             {
@@ -91,7 +93,8 @@ public class FileManager
 
     public void AddFolders(string[] paths)
     {
-        foreach (string path in paths)
+        string[] ascSortedPaths = paths.OrderBy(x => x.Length).ToArray();
+        foreach (string path in ascSortedPaths)
         {
             try
             {
@@ -107,7 +110,8 @@ public class FileManager
 
     public void RemoveFolders(string[] paths)
     {
-        foreach (string path in paths)
+        string[] descSortedPaths = paths.OrderByDescending(x => x.Length).ToArray();
+        foreach (string path in descSortedPaths)
         {
             try
             {

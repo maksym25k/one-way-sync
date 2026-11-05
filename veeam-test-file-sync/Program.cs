@@ -6,29 +6,38 @@ class Program
 {
 
     static void Main(string[] args)
-    {
-        string sourcePath = "/home/maksym/Documents/Projects/test-veeam/test";
-        string targetPath = "/home/maksym/Documents/Projects/test-veeam/test3";
-        string logPath = "/home/maksym/Documents/Projects/test-veeam/log.txt";
+    {   
         
+        string sourcePath = "/home/maksym/Documents/Projects/test-veeam/test";
+        string targetPath = "/home/maksym/Documents/Projects/test-veeam/test1";
+        string logPath = "/home/maksym/Documents/Projects/test-veeam/log.txt";
+
         FileManager fm = new FileManager(sourcePath, targetPath);
         
-        if (!fm.DirectoryExists(sourcePath))
+        string? logFilePath = Path.GetDirectoryName(logPath);
+        if (!Path.Exists(logFilePath))
         {
-            Console.WriteLine("Source directory does not exist");
+            Console.WriteLine("Please provide a valid log file path");
+            return;
+        }
+
+        if (!File.Exists(logPath))
+        {
+            File.Create(logPath).Close();
+        }
+        Logger l = new Logger(logPath);
+
+        if (!fm.DirectoryExists(sourcePath))
+        { 
+            l.Error("Source directory does not exist");
             return;
         }
         if (!fm.DirectoryExists(targetPath))
         {
-            Console.WriteLine("Target directory does not exist");
-            return;
+            l.Waring("Target directory does not exist, Creating a new one");   
+            Directory.CreateDirectory(targetPath);
         }
-        if (!fm.FileExists(logPath))
-        {
-            Console.WriteLine("Please insert valid log file");
-            return;
-        }
-        
+        l.LogStart();
         Scanner sc = new Scanner(sourcePath, targetPath);
         fm.SetLogger(new Logger(logPath));
         sc.Scan();
@@ -39,5 +48,6 @@ class Program
         fm.AddFiles(sc.GetFilesToAdd(), "Create");
         fm.AddFiles(sc.GetFilesToUpdate(), "Update");
         
+        l.LogEnd();
     }
 }
