@@ -6,11 +6,11 @@ public class Scanner
 {
     private readonly string _sourcePath = "/home/maksym/Documents/Projects/test-veeam/test";
     private readonly string _targetPath = "/home/maksym/Documents/Projects/test-veeam/test1";
-    private string[] filesToAdd;
-    private string[] filesToRemove;
-    private string[] filesToUpdate;
-    private string[] foldersToAdd;
-    private string[] foldersToRemove;
+    private string[]? filesToAdd;
+    private string[]? filesToRemove;
+    private string[]? filesToUpdate;
+    private string[]? foldersToAdd;
+    private string[]? foldersToRemove;
     private readonly Comparator _comparator;
 
     public string[] GetFilesToAdd()
@@ -45,40 +45,41 @@ public Scanner(string sourcePath, string targetPath)
         this._comparator = new Comparator(sourcePath, targetPath);
     }
     
-    string[] TransformToRelative(string[] paths, string relativeTo)
-    {   
-        string[] relativePaths = new string[paths.Length];
-        for (int i = 0; i < relativePaths.Length; i++)
-        {
-            relativePaths[i] = Path.GetRelativePath(relativeTo,paths[i]);
-        }
-        return relativePaths;
-    }
-    
+
     public void Scan()
     {
+        HashSet<string> sourceDirectorySet = new HashSet<string>();
+        HashSet<string> targetDirectorySet = new HashSet<string>();
     
-    string [] sourceDirectories = TransformToRelative(Directory.GetDirectories(_sourcePath, "*", SearchOption.AllDirectories), _sourcePath);
-    string [] targetDirectories = TransformToRelative(Directory.GetDirectories(_targetPath, "*", SearchOption.AllDirectories), _targetPath);
+        HashSet<string> sourceFileSet = new HashSet<string>();
+        HashSet<string> targetFileSet = new HashSet<string>();
+        
+        foreach (string sourceFolder in Directory.EnumerateDirectories(_sourcePath, "*", SearchOption.AllDirectories))
+        {
+            sourceDirectorySet.Add(Path.GetRelativePath(_sourcePath, sourceFolder));
+        }
+        foreach (string targetFolder in Directory.EnumerateDirectories(_targetPath, "*", SearchOption.AllDirectories))
+        {
+            targetDirectorySet.Add(Path.GetRelativePath(_targetPath, targetFolder));
+        }
+        
+        foreach (string sourceFile in Directory.EnumerateFiles(_sourcePath, "*", SearchOption.AllDirectories))
+        {
+            sourceFileSet.Add(Path.GetRelativePath(_sourcePath, sourceFile));
+        }
+        foreach (string targetFile in Directory.EnumerateFiles(_targetPath, "*", SearchOption.AllDirectories))
+        {
+            targetFileSet.Add(Path.GetRelativePath(_targetPath, targetFile));
+        }
+        
+        foldersToAdd = sourceDirectorySet.Except(targetDirectorySet).ToArray();
+        foldersToRemove = targetDirectorySet.Except(sourceDirectorySet).ToArray();
     
-    string [] sourceFiles= TransformToRelative(Directory.GetFiles(_sourcePath, "*", SearchOption.AllDirectories), _sourcePath);
-    string [] targetFiles = TransformToRelative(Directory.GetFiles(_targetPath, "*", SearchOption.AllDirectories), _targetPath);
+        filesToAdd = sourceFileSet.Except(targetFileSet).ToArray();
+        filesToRemove = targetFileSet.Except(sourceFileSet).ToArray();
     
-    
-    HashSet<string> sourceDirectorySet = new HashSet<string>(sourceDirectories);
-    HashSet<string> targetDirectorySet = new HashSet<string>(targetDirectories);
-    
-    HashSet<string> sourceFileSet = new HashSet<string>(sourceFiles);
-    HashSet<string> targetFileSet = new HashSet<string>(targetFiles);
-
-    foldersToAdd = sourceDirectorySet.Except(targetDirectorySet).ToArray();
-    foldersToRemove = targetDirectorySet.Except(sourceDirectorySet).ToArray();
-    
-    filesToAdd = sourceFileSet.Except(targetFileSet).ToArray();
-    filesToRemove = targetFileSet.Except(sourceFileSet).ToArray();
-    
-    string [] filesToCheck = sourceFileSet.Intersect(targetFileSet).ToArray();
-    filesToUpdate = this._comparator.Compare(filesToCheck).ToArray();
+        string [] filesToCheck = sourceFileSet.Intersect(targetFileSet).ToArray();
+        filesToUpdate = this._comparator.Compare(filesToCheck).ToArray();
     
     }
 
