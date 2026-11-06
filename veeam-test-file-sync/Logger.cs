@@ -7,6 +7,10 @@ public class Logger
     public Logger(string logPath)
     {
         this._logPath = logPath;
+        if (!File.Exists(_logPath))
+        {
+            File.Create(_logPath).Close();
+        }
     }
 
     private string Now()
@@ -25,7 +29,6 @@ public class Logger
         string output = $"{Now()} | Action=Remove | Type=Folder path={path}";
         Console.WriteLine(output);
         WriteIntoLog(output);
-
     }
 
     public void LogFolderCreate(string path)
@@ -63,13 +66,6 @@ public class Logger
     public void Error(string error)
     {
         string output = Now() + " | ERROR | " + error;
-        Console.WriteLine(output);
-        WriteIntoLog(output);
-    }
-
-    public void Waring(string warning)
-    {
-        string output = Now() + " | WARNING | " + warning;
         Console.WriteLine(output);
         WriteIntoLog(output);
     }

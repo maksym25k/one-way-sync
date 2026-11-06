@@ -1,58 +1,104 @@
-﻿namespace veeam_test_file_sync;
+﻿using System.ComponentModel;
+
+namespace veeam_test_file_sync;
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 class Program
 {
-
-    static void Main(string[] args)
-    {   
-        
-        string sourcePath = "/home/maksym/Documents/Projects/test-veeam/test";
-        string targetPath = "/home/maksym/Documents/Projects/test-veeam/test1";
-        string logPath = "/home/maksym/Documents/Projects/test-veeam/log.txt";
-        
-        Logger logger = new Logger(logPath);
-        Synchronizer sc = new Synchronizer(sourcePath, targetPath, logger);
-        sc.Synchronize(sourcePath, targetPath);
-
-        /*
-        FileManager fm = new FileManager(sourcePath, targetPath);
-
-        string? logFilePath = Path.GetDirectoryName(logPath);
-        if (!Path.Exists(logFilePath))
+    private static int interval;
+    private static string sourcePath;
+    private static string targetPath;
+    private static string logPath;
+    private static bool syncRunning = false;
+    private static bool cancelled = false;
+    private static ManualResetEvent mre = new ManualResetEvent(false);
+    static void ParseArgs(string[] args)
+    {
+        if (args.Length < 3)
         {
-            Console.WriteLine("Please provide a valid log file path");
+            throw new Exception("Not enough arguments supplied.");
+        }
+        
+        sourcePath = args[0];
+        targetPath = args[1];
+        logPath = args[2];
+
+        if (args.Length > 3)
+        {
+            interval = int.Parse(args[3]);
+        }
+        else
+        {
+            interval = 10000;
+        }
+        
+    }
+    static void Main(string[] args)
+    {
+        try
+        {
+            ParseArgs(args);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
             return;
         }
+        
+        FileManager fm = new FileManager();
 
-        if (!File.Exists(logPath))
+        if (!fm.DirectoryExists(Path.GetDirectoryName(logPath)))
         {
-            File.Create(logPath).Close();
+            Console.WriteLine("Please provide valid path to a log file.");
+            return;
         }
-        Logger l = new Logger(logPath);
-
         if (!fm.DirectoryExists(sourcePath))
         {
-            l.Error("Source directory does not exist");
+            Console.WriteLine("Please provide valid source path.");
             return;
         }
+
         if (!fm.DirectoryExists(targetPath))
         {
-            l.Waring("Target directory does not exist, Creating a new one");
-            Directory.CreateDirectory(targetPath);
+            Console.WriteLine("Please provide valid target path.");
+            return;
         }
-        l.LogStart();
-        Scanner sc = new Scanner(sourcePath, targetPath);
-        fm.SetLogger(new Logger(logPath));
-        sc.Scan();
 
-        fm.RemoveFiles(sc.GetFilesToRemove());
-        fm.RemoveFolders(sc.GetFoldersToRemove());
-        fm.AddFolders(sc.GetFoldersToAdd());
-        fm.AddFiles(sc.GetFilesToAdd(), "Create");
-        fm.AddFiles(sc.GetFilesToUpdate(), "Update");
+        if (!fm.ValidPermissions(targetPath))
+        {
+            Console.WriteLine("You need read and write permission for the target folder to run this program.");
+            return;
+        }
+        
+        Logger logger = new Logger(logPath);
+        Synchronizer sc = new Synchronizer(sourcePath, targetPath, logger, fm);
+        Console.CancelKeyPress += CancelHandler;
+ 
+        int i = 0;
+        while (!cancelled)
+        {
+            logger.LogStart();
+            sc.Synchronize(sourcePath, targetPath);
+            logger.LogEnd();
+            if (!cancelled)
+            {
+                mre.WaitOne(interval);
+            }
+        }
 
-        l.LogEnd();*/
+        static void CancelHandler(object sender, ConsoleCancelEventArgs e)
+        {
+            Console.WriteLine(Environment.NewLine + "Exiting...");
+   
+            cancelled = true;
+            e.Cancel = true;
+            mre.Set();
+            
+        }
     }
+    
+    
 }

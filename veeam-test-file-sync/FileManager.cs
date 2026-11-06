@@ -3,16 +3,10 @@ using System.IO;
 
 public class FileManager
 {
-    private string _sourcePath;
-    private string _targetPath;
     private Logger _logger;
 
 
-    public FileManager(string sourcePath, string targetPath)
-    {
-        _sourcePath = sourcePath;
-        _targetPath = targetPath;
-    }
+    public FileManager() { }
 
     public void SetLogger(Logger logger)
     {
@@ -24,15 +18,10 @@ public class FileManager
         return Directory.Exists(path);
     }
 
-    public bool FileExists(string path)
-    {
-        return File.Exists(path);
-    }
-
     public bool ValidPermissions(string path)
     {
         string randFileName = Path.GetRandomFileName();
-        string probePath = Path.Combine(_targetPath, randFileName);
+        string probePath = Path.Combine(path, randFileName);
         try
         {
             File.WriteAllText(probePath, "Test");

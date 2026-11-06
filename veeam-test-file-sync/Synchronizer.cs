@@ -5,15 +5,12 @@ using System.IO;
 
 public class Synchronizer
 {
-    private string _sourcePath;
-    private string _targetPath;
+    
     private FileManager fm;
     private Comparator _comparator;
-    public Synchronizer(string sourcePath, string targetPath, Logger logger)
+    public Synchronizer(string sourcePath, string targetPath, Logger logger, FileManager fm)
     {
-        this._sourcePath = sourcePath;
-        this._targetPath = targetPath;
-        this.fm = new FileManager(sourcePath, targetPath);
+        this.fm = fm;
         this._comparator  = new Comparator(sourcePath, targetPath);
         fm.SetLogger(logger);
     }
