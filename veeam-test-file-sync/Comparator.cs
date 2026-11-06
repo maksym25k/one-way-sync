@@ -26,12 +26,10 @@ public class Comparator
         return targetHash.SequenceEqual(sourceHash);
     }
 
-    public bool CompareFile(string relativePath)
+    public bool CompareFile(string sourcePath, string targetPath)
     {
-        string fullSourcePath = Path.Combine(_sourePath, relativePath);
-        string fullTargetPath = Path.Combine(_targetPath, relativePath);
-        FileInfo sourceFileInfo = new FileInfo(fullSourcePath);
-        FileInfo targetFileInfo = new FileInfo(fullTargetPath);
+        FileInfo sourceFileInfo = new FileInfo(sourcePath);
+        FileInfo targetFileInfo = new FileInfo(targetPath);
         
         if (targetFileInfo.Length != sourceFileInfo.Length) return false;
         if (targetFileInfo.LastWriteTime != sourceFileInfo.LastWriteTime) return false;
@@ -39,17 +37,17 @@ public class Comparator
         return Md5Compare(sourceFileInfo, targetFileInfo);
     }
 
-    public List<string> Compare(string[] paths)
+    public string[] Compare(string[] sourcePaths, string[] targetPaths)
     {
         List<string> toCopy = new List<string>();
-        foreach (string path in paths )
+        for (int i = 0; i < targetPaths.Length; i++)
         {
-            if (!this.CompareFile(path))
+            if (!this.CompareFile(sourcePaths[i], targetPaths[i]))
             {
-                toCopy.Add(path);
+                toCopy.Add(Path.GetFileName(sourcePaths[i]));
             }
         }
-        return toCopy;
+        return toCopy.ToArray();
     }
 
 }

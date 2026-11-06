@@ -53,9 +53,8 @@ public class FileManager
         {
             try
             {
-                string fullTargetPath = Path.Combine(this._targetPath, path);
-                File.Delete(fullTargetPath);
-                _logger.LogFileDelete(fullTargetPath);
+                File.Delete(path);
+                _logger.LogFileDelete(path);
             }
             catch (Exception e)
             {
@@ -64,24 +63,22 @@ public class FileManager
         }
     }
 
-    public void AddFiles(string[] paths, string mode)
+    public void CopyFiles(string[] sourcePaths, string[] targetPaths,string mode)
     {
-        foreach (string path in paths)
+        for (int i = 0; i < targetPaths.Length; i++)
         {
             try
             {
-                string fullTargetPath = Path.Combine(this._targetPath, path);
-                string fullSourcePath = Path.Combine(this._sourcePath, path);
-                File.Copy(fullSourcePath, fullTargetPath, true);
-                File.SetLastWriteTime(fullTargetPath, File.GetLastWriteTime(fullSourcePath)); 
+                File.Copy(sourcePaths[i], targetPaths[i], true);
+                File.SetLastWriteTime(sourcePaths[i], File.GetLastWriteTime(targetPaths[i])); 
                 
                 if (mode == "Create")
                 {
-                    this._logger.LogFileCreate(fullTargetPath);
+                    this._logger.LogFileCreate(targetPaths[i]);
                 }
                 else
                 {
-                    this._logger.LogFileUpdate(fullTargetPath);
+                    this._logger.LogFileUpdate(targetPaths[i]);
                 }
             }
             catch (Exception e)
@@ -98,8 +95,8 @@ public class FileManager
         {
             try
             {
-                Directory.CreateDirectory(Path.Combine(this._targetPath, path));
-                _logger.LogFolderCreate(Path.Combine(this._targetPath, path));
+                Directory.CreateDirectory(path);
+                _logger.LogFolderCreate(path);
             }
             catch (Exception e)
             {
@@ -115,8 +112,8 @@ public class FileManager
         {
             try
             {
-                Directory.Delete(Path.Combine(this._targetPath, path));
-                _logger.LogFolderDelete(Path.Combine(this._targetPath, path));
+                Directory.Delete(path, true);
+                _logger.LogFolderDelete(path);
             }
             catch (Exception e)
             {
