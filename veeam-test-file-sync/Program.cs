@@ -92,10 +92,11 @@ class Program
         static void CancelHandler(object sender, ConsoleCancelEventArgs e)
         {
             Console.WriteLine(Environment.NewLine + "Exiting...");
-   
-            cancelled = true;
             e.Cancel = true;
+            
+            cancelled = true;
             mre.Set();
+            
             
         }
     }

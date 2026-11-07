@@ -6,7 +6,7 @@ public class Logger
 
     public Logger(string logPath)
     {
-        this._logPath = logPath;
+        _logPath = logPath;
         if (!File.Exists(_logPath))
         {
             File.Create(_logPath).Close();
@@ -25,7 +25,6 @@ public class Logger
 
     public void LogFolderDelete(string path)
     {
-        string date = Now();
         string output = $"{Now()} | Action=Remove | Type=Folder path={path}";
         Console.WriteLine(output);
         WriteIntoLog(output);
@@ -33,7 +32,6 @@ public class Logger
 
     public void LogFolderCreate(string path)
     {
-        string date = Now();
         string output = $"{Now()} | Action=Create | Type=Folder path={path}";
         Console.WriteLine(output);
         WriteIntoLog(output);
@@ -41,7 +39,6 @@ public class Logger
 
     public void LogFileCreate(string path)
     {
-        string date = Now();
         string output = $"{Now()} | Action=Create | Type=File path={path}";
         Console.WriteLine(output);
         WriteIntoLog(output);
@@ -49,7 +46,6 @@ public class Logger
 
     public void LogFileDelete(string path)
     {
-        string date = Now();
         string output = $"{Now()} | Action=Remove | Type=File path={path}";
         Console.WriteLine(output);
         WriteIntoLog(output);
@@ -57,7 +53,6 @@ public class Logger
 
     public void LogFileUpdate(string path)
     {
-        string date = Now();
         string output = $"{Now()} | Action=Update | Type=File path={path}";
         Console.WriteLine(output);
         WriteIntoLog(output);

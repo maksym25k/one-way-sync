@@ -11,7 +11,7 @@ public class Synchronizer
     public Synchronizer(string sourcePath, string targetPath, Logger logger, FileManager fm)
     {
         this.fm = fm;
-        this._comparator  = new Comparator(sourcePath, targetPath);
+        _comparator  = new Comparator(sourcePath, targetPath);
         fm.SetLogger(logger);
     }
     
@@ -42,7 +42,7 @@ public class Synchronizer
         
         string[] sourceFolders = GetRelativePaths(sourcePath,Directory.GetDirectories(sourcePath, "*", SearchOption.TopDirectoryOnly));
         string[] targetFolders = GetRelativePaths(targetPath,Directory.GetDirectories(targetPath, "*", SearchOption.TopDirectoryOnly));
-        
+        Thread.Sleep(500);
         if(sourceFiles.Length == 0 && sourceFolders.Length == 0 && targetFiles.Length == 0 && targetFolders.Length == 0) return;
         
         string [] filesToAdd = sourceFiles.Except(targetFiles).ToArray();

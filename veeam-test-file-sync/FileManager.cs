@@ -10,7 +10,7 @@ public class FileManager
 
     public void SetLogger(Logger logger)
     {
-        this._logger = logger;
+        _logger = logger;
     }
 
     public bool DirectoryExists(string path)
@@ -63,11 +63,11 @@ public class FileManager
                 
                 if (mode == "Create")
                 {
-                    this._logger.LogFileCreate(targetPaths[i]);
+                    _logger.LogFileCreate(targetPaths[i]);
                 }
                 else
                 {
-                    this._logger.LogFileUpdate(targetPaths[i]);
+                    _logger.LogFileUpdate(targetPaths[i]);
                 }
             }
             catch (Exception e)

@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices.JavaScript;
+
 namespace veeam_test_file_sync;
 using System.IO;
 using System.Security.Cryptography;
@@ -17,13 +19,32 @@ public class Comparator
 
     bool Md5Compare(FileInfo targetFileInfo, FileInfo sourceFileInfo)
     {
-        using MD5 md5 = MD5.Create();
         using Stream sourceStream = File.OpenRead(sourceFileInfo.FullName);
         using Stream targetStream = File.OpenRead(targetFileInfo.FullName);
-        byte[] targetHash = md5.ComputeHash(targetStream);
-        byte[] sourceHash = md5.ComputeHash(sourceStream);
         
-        return targetHash.SequenceEqual(sourceHash);
+        int bufferSize = 32 * 1024;
+        byte[] sourceBuffer = new byte[bufferSize];
+        byte[] targetBuffer = new byte[bufferSize];
+        long length = sourceStream.Length;
+        long position = 0;
+        Console.WriteLine($"Comparing {sourceFileInfo.Name} and {targetFileInfo.Name}");
+        while (true)
+        {
+            int bytesToRead = (int)Math.Min(bufferSize, length - position);
+            sourceStream.ReadExactly(sourceBuffer, 0, bytesToRead);
+            targetStream.ReadExactly(targetBuffer, 0, bytesToRead);
+            
+            if(sourceBuffer.SequenceCompareTo(targetBuffer) != 0)
+            {
+                return false;
+            }
+            
+            position += bytesToRead;
+            if (position == length)
+            {
+                return true;
+            }
+        }
     }
 
     public bool CompareFile(string sourcePath, string targetPath)
@@ -32,7 +53,7 @@ public class Comparator
         FileInfo targetFileInfo = new FileInfo(targetPath);
         
         if (targetFileInfo.Length != sourceFileInfo.Length) return false;
-        if (targetFileInfo.LastWriteTime != sourceFileInfo.LastWriteTime) return false;
+        if (targetFileInfo.LastWriteTimeUtc != sourceFileInfo.LastWriteTimeUtc) return false;
             
         return Md5Compare(sourceFileInfo, targetFileInfo);
     }
