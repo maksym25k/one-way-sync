@@ -30,7 +30,7 @@ class Program
         }
         else
         {
-            interval = 10000;
+            interval = 60000;
         }
         
     }
@@ -55,6 +55,10 @@ class Program
         Logger logger = new Logger(logPath);
         FileManager fm = new FileManager(logger);
         
+        if (!fm.ValidPermissions(Path.GetDirectoryName(logPath)))
+        {
+            Console.WriteLine("Insufficient permissions to run this program.");
+        }
         if (!fm.DirectoryExists(sourcePath))
         {
             Console.WriteLine("Please provide valid source path.");

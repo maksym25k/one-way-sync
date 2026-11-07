@@ -4,13 +4,18 @@ public class Logger
 {
     private string _logPath;
     private int _errorCount = 0;
+    private int _foldersAdded = 0;
+    private int _filesRemoved = 0;
+    private int _foldersRemoved = 0;
+    private int _filesUpdated = 0;
+    private int _filesCreated = 0;
     
     public Logger(string logPath)
     {
         _logPath = logPath;
         if (!File.Exists(_logPath))
         {
-            File.Create(_logPath).Close();
+            File.Create(Path.GetDirectoryName(_logPath) + "log.txt").Close();
         }
     }
 
@@ -33,34 +38,39 @@ public class Logger
 
     public void LogFolderCreate(string path)
     {
-        string output = $"{Now()} | Action=Create | Type=Folder path={path}";
+        _foldersAdded++;
+        string output = $"{Now()} | Action=Create | Type=Folder | path={path}";
         Console.WriteLine(output);
         WriteIntoLog(output);
     }
 
     public void LogFileCreate(string path)
     {
-        string output = $"{Now()} | Action=Create | Type=File path={path}";
+        _filesCreated++;
+        string output = $"{Now()} | Action=Create | Type=File | path={path}";
         Console.WriteLine(output);
         WriteIntoLog(output);
     }
 
     public void LogFileDelete(string path)
     {
-        string output = $"{Now()} | Action=Remove | Type=File path={path}";
+        _filesRemoved++;
+        string output = $"{Now()} | Action=Remove | Type=File | path={path}";
         Console.WriteLine(output);
         WriteIntoLog(output);
     }
 
     public void LogFileUpdate(string path)
     {
-        string output = $"{Now()} | Action=Update | Type=File path={path}";
+        _filesUpdated++;
+        string output = $"{Now()} | Action=Update | Type=File | path={path}";
         Console.WriteLine(output);
         WriteIntoLog(output);
     }
 
     public void Error(string error)
     {
+        _errorCount++;
         string output = Now() + " | ERROR | " + error;
         Console.WriteLine(output);
         WriteIntoLog(output);
@@ -68,13 +78,22 @@ public class Logger
 
     public void LogStart()
     {   
+        _foldersAdded = 0; _foldersRemoved = 0;
+        _filesCreated = 0; _filesRemoved = 0;
+        _filesUpdated = 0;
         string output = Now() + " | SYNC START";
         Console.WriteLine(output);
         WriteIntoLog(output);
     }
     public void LogEnd()
     {
-        string output = Now() + $" | SYNC END | ERROR COUNT={_errorCount}";
+        string output = Now() + $" | SYNC END | " +
+                        $"{(_filesCreated > 0? "FILES_CREATED=" + _filesCreated + " | " : "")}" +
+                        $"{(_filesUpdated > 0? "FILES_UPDATED=" + _filesUpdated + " | " : "")}" +
+                        $"{(_filesRemoved > 0? "FILES_REMOVED=" + _filesRemoved + " | " : "")}" +
+                        $"{(_foldersAdded > 0? "FOLDERS_CREATED=" + _foldersAdded + " | " : "")}" +
+                        $"{(_foldersRemoved > 0? "FOLDERS_REMOVED=" + _foldersRemoved + " | " : "")}" +
+                        $"ERROR COUNT={_errorCount}";
         Console.WriteLine(output);
         WriteIntoLog(output);
         _errorCount = 0;
