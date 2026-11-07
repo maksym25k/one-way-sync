@@ -14,7 +14,7 @@ class Program
     private static string logPath;
     private static bool syncRunning = false;
     private static bool cancelled = false;
-    private static ManualResetEvent mre = new ManualResetEvent(false);
+    private static ManualResetEvent mre = new(false);
     static void ParseArgs(string[] args)
     {
         if (args.Length < 3)
@@ -48,13 +48,15 @@ class Program
             return;
         }
         
-        FileManager fm = new FileManager();
-
-        if (!fm.DirectoryExists(Path.GetDirectoryName(logPath)))
+        if (!Directory.Exists(Path.GetDirectoryName(logPath)))
         {
             Console.WriteLine("Please provide valid path to a log file.");
             return;
         }
+        
+        Logger logger = new Logger(logPath);
+        FileManager fm = new FileManager(logger);
+        
         if (!fm.DirectoryExists(sourcePath))
         {
             Console.WriteLine("Please provide valid source path.");
@@ -73,7 +75,7 @@ class Program
             return;
         }
         
-        Logger logger = new Logger(logPath);
+        
         Synchronizer sc = new Synchronizer(sourcePath, targetPath, logger, fm);
         Console.CancelKeyPress += CancelHandler;
  

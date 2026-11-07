@@ -6,7 +6,10 @@ public class FileManager
     private Logger _logger;
 
 
-    public FileManager() { }
+    public FileManager(Logger logger)
+    {
+        _logger = logger;
+    }
 
     public void SetLogger(Logger logger)
     {
