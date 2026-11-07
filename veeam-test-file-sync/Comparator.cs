@@ -15,6 +15,7 @@ public class Comparator
 {
     private Dictionary<string, FileCache> _sourceFilesCache = new();
     private Dictionary<string, FileCache> _targetFilesCache = new();
+    private Logger _logger;
 
     public void RemoveFileCaches(string[] sourcePaths, string[] targetPaths)
     {
@@ -29,7 +30,10 @@ public class Comparator
         }
     }
 
-    public Comparator() {}
+    public Comparator(Logger logger)
+    {
+        _logger = logger;
+    }
 
     private FileCache CreateFileCache(FileInfo fi)
     {
@@ -48,44 +52,46 @@ public class Comparator
         fc.LastWriteTimeUtc = fi.LastWriteTimeUtc;
         fc.Size = fi.Length;
         fc.Hash = CalculateMd5(fi);
-        
     }
     
     
     bool CacheCompare(FileInfo sourceFileInfo, FileInfo targetFileInfo)
     {
-        /*
-         * if there is no corresponding cached file for at least one of the files, we create the record and run full compare, otherwise the same
-         * If we know that at least one did not change by checking the metadata, we go, and calculate new hash
-         * for the unknown one. If it comes out the same, return true and update the hash, if it comes out different, return false and delete the hash
-         */
         FileCache? sourceFileCache = _sourceFilesCache.GetValueOrDefault(sourceFileInfo.FullName);
         FileCache? targetFileCache = _targetFilesCache.GetValueOrDefault(targetFileInfo.FullName);
-
-        if (sourceFileCache == null || targetFileCache == null)
+        try
         {
-            if (sourceFileCache == null)
+            if (sourceFileCache == null || targetFileCache == null)
             {
-                sourceFileCache = CreateFileCache(sourceFileInfo);
-                _sourceFilesCache.Add(sourceFileInfo.FullName,  sourceFileCache);
+                if (sourceFileCache == null)
+                {
+                    sourceFileCache = CreateFileCache(sourceFileInfo);
+                    _sourceFilesCache.Add(sourceFileInfo.FullName,  sourceFileCache);
+                }
+
+                if (targetFileCache == null)
+                {
+                    targetFileCache = CreateFileCache(targetFileInfo);
+                    _targetFilesCache.Add(targetFileInfo.FullName, targetFileCache);
+                }
             }
 
-            if (targetFileCache == null)
+            if (sourceFileCache.Size != sourceFileInfo.Length ||
+                sourceFileCache.LastWriteTimeUtc != sourceFileInfo.LastWriteTimeUtc)
             {
-                targetFileCache = CreateFileCache(targetFileInfo);
-                _targetFilesCache.Add(targetFileInfo.FullName, targetFileCache);
+                UpdateFileCache(sourceFileCache, sourceFileInfo);
+            }
+            if (targetFileCache.Size != targetFileInfo.Length ||
+                targetFileCache.LastWriteTimeUtc != targetFileInfo.LastWriteTimeUtc)
+            {
+                UpdateFileCache(targetFileCache, targetFileInfo);
             }
         }
-
-        if (sourceFileCache.Size != sourceFileInfo.Length ||
-            sourceFileCache.LastWriteTimeUtc != sourceFileInfo.LastWriteTimeUtc)
+        catch (IOException)
         {
-            UpdateFileCache(sourceFileCache, sourceFileInfo);
-        }
-        if (targetFileCache.Size != targetFileInfo.Length ||
-            targetFileCache.LastWriteTimeUtc != targetFileInfo.LastWriteTimeUtc)
-        {
-            UpdateFileCache(targetFileCache, targetFileInfo);
+            _logger.Error($"Could not compare files {sourceFileInfo.FullName} to {targetFileInfo.FullName}");
+            //True because then there will be no attempt to update the files until the next run
+            return true;
         }
 
         return sourceFileCache.Hash.SequenceEqual(targetFileCache.Hash);
@@ -94,10 +100,14 @@ public class Comparator
     byte[] CalculateMd5(FileInfo fileInfo)
     {
         using var md5 = MD5.Create();
+        
         using var fileStream = fileInfo.OpenRead();
         byte[] hash = md5.ComputeHash(fileStream);
         return hash;
-    }
+        
+       
+            
+}
 
     private bool CompareFile(string sourcePath, string targetPath)
     {

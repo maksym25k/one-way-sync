@@ -9,8 +9,7 @@ public class Synchronizer
     public Synchronizer(Logger logger, FileManager fm)
     {
         _fm = fm;
-        _comparator  = new Comparator();
-        _fm.SetLogger(logger);
+        _comparator  = new Comparator(logger);
     }
     
     private string[] GetRelativePaths(string relativeTo, string[] paths)
