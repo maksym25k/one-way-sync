@@ -3,7 +3,8 @@ namespace veeam_test_file_sync;
 public class Logger
 {
     private string _logPath;
-
+    private int _errorCount = 0;
+    
     public Logger(string logPath)
     {
         _logPath = logPath;
@@ -67,15 +68,16 @@ public class Logger
 
     public void LogStart()
     {   
-        string output = Now() + " | START";
+        string output = Now() + " | SYNC START";
         Console.WriteLine(output);
         WriteIntoLog(output);
     }
     public void LogEnd()
     {
-        string output = Now() + " | END";
+        string output = Now() + $" | SYNC END | ERROR COUNT={_errorCount}";
         Console.WriteLine(output);
         WriteIntoLog(output);
+        _errorCount = 0;
     }
 
 }

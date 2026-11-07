@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace veeam_test_file_sync;
 using System.IO;
 

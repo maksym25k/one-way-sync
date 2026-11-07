@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace veeam_test_file_sync;
+﻿namespace veeam_test_file_sync;
 using System;
 using System.IO;
 using System.Threading;
@@ -94,12 +92,10 @@ class Program
         static void CancelHandler(object sender, ConsoleCancelEventArgs e)
         {
             Console.WriteLine(Environment.NewLine + "Exiting...");
-            e.Cancel = true;
             
+            e.Cancel = true;
             cancelled = true;
             mre.Set();
-            
-            
         }
     }
     

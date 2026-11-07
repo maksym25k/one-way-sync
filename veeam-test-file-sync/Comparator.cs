@@ -1,8 +1,5 @@
-using System.Runtime.InteropServices.JavaScript;
-
 namespace veeam_test_file_sync;
 using System.IO;
-using System.Text.Json;
 using System.Security.Cryptography;
 using System.Linq;
 
