@@ -6,13 +6,13 @@ using System.IO;
 public class Synchronizer
 {
     
-    private FileManager fm;
-    private Comparator _comparator;
-    public Synchronizer(string sourcePath, string targetPath, Logger logger, FileManager fm)
+    private readonly FileManager _fm;
+    private readonly Comparator _comparator;
+    public Synchronizer(Logger logger, FileManager fm)
     {
-        this.fm = fm;
-        _comparator  = new Comparator(sourcePath, targetPath);
-        fm.SetLogger(logger);
+        _fm = fm;
+        _comparator  = new Comparator();
+        _fm.SetLogger(logger);
     }
     
     private string[] GetRelativePaths(string relativeTo, string[] paths)
@@ -42,7 +42,6 @@ public class Synchronizer
         
         string[] sourceFolders = GetRelativePaths(sourcePath,Directory.GetDirectories(sourcePath, "*", SearchOption.TopDirectoryOnly));
         string[] targetFolders = GetRelativePaths(targetPath,Directory.GetDirectories(targetPath, "*", SearchOption.TopDirectoryOnly));
-        Thread.Sleep(500);
         if(sourceFiles.Length == 0 && sourceFolders.Length == 0 && targetFiles.Length == 0 && targetFolders.Length == 0) return;
         
         string [] filesToAdd = sourceFiles.Except(targetFiles).ToArray();
@@ -53,14 +52,14 @@ public class Synchronizer
         string [] foldersToRemove = targetFolders.Except(sourceFolders).ToArray();
         string[] filesToCopy = _comparator.Compare(GetFullPaths(sourcePath, filesToCheck), GetFullPaths(targetPath, filesToCheck));
         
-        fm.RemoveFolders(GetFullPaths(targetPath, foldersToRemove));
-        fm.AddFolders(GetFullPaths(targetPath, foldersToAdd));
+        _fm.RemoveFolders(GetFullPaths(targetPath, foldersToRemove));
+        _fm.AddFolders(GetFullPaths(targetPath, foldersToAdd));
         
-        fm.CopyFiles(GetFullPaths(sourcePath,filesToAdd), GetFullPaths(targetPath, filesToAdd), "Create");
-        fm.CopyFiles(GetFullPaths(sourcePath, filesToCopy), GetFullPaths(targetPath, filesToCopy), "Update");
-        fm.RemoveFiles(GetFullPaths(targetPath,filesToRemove));
+        _fm.CopyFiles(GetFullPaths(sourcePath,filesToAdd), GetFullPaths(targetPath, filesToAdd), "Create");
+        _fm.CopyFiles(GetFullPaths(sourcePath, filesToCopy), GetFullPaths(targetPath, filesToCopy), "Update");
+        _fm.RemoveFiles(GetFullPaths(targetPath,filesToRemove));
         
-
+        _comparator.RemoveFileCaches(GetFullPaths(sourcePath, filesToRemove), GetFullPaths(targetPath, filesToRemove));
         foreach (string sourceFolder in sourceFolders)
         {
             Synchronize(Path.Combine(sourcePath, sourceFolder), Path.Combine(targetPath, sourceFolder));

@@ -76,7 +76,7 @@ class Program
         }
         
         
-        Synchronizer sc = new Synchronizer(sourcePath, targetPath, logger, fm);
+        Synchronizer sc = new Synchronizer(logger, fm);
         Console.CancelKeyPress += CancelHandler;
  
         int i = 0;

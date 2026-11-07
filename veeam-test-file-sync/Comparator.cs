@@ -16,19 +16,23 @@ public class FileCache
 
 public class Comparator
 {
-    private List<FileCache> _sourceFilesCache = new();
-    private List<FileCache> _targetFilesCache = new();
-    private string _sourePath;
-    private string _targetPath;
-    
-    
-    
-    
-    public Comparator(string sourcePath, string targetPath)
-    {   
-        _sourePath = sourcePath;
-        _targetPath = targetPath;
+    private Dictionary<string, FileCache> _sourceFilesCache = new();
+    private Dictionary<string, FileCache> _targetFilesCache = new();
+
+    public void RemoveFileCaches(string[] sourcePaths, string[] targetPaths)
+    {
+        foreach (var sourcePath in sourcePaths)
+        {
+            _sourceFilesCache.Remove(sourcePath);
+        }
+
+        foreach (var targetPath in targetPaths)
+        {
+            _targetFilesCache.Remove(targetPath);
+        }
     }
+
+    public Comparator() {}
 
     private FileCache CreateFileCache(FileInfo fi)
     {
@@ -58,21 +62,21 @@ public class Comparator
          * If we know that at least one did not change by checking the metadata, we go, and calculate new hash
          * for the unknown one. If it comes out the same, return true and update the hash, if it comes out different, return false and delete the hash
          */
-        FileCache? sourceFileCache = _sourceFilesCache.FirstOrDefault(x => x.Path == sourceFileInfo.FullName);
-        FileCache? targetFileCache = _targetFilesCache.FirstOrDefault(x => x.Path == targetFileInfo.FullName);
+        FileCache? sourceFileCache = _sourceFilesCache.GetValueOrDefault(sourceFileInfo.FullName);
+        FileCache? targetFileCache = _targetFilesCache.GetValueOrDefault(targetFileInfo.FullName);
 
         if (sourceFileCache == null || targetFileCache == null)
         {
             if (sourceFileCache == null)
             {
                 sourceFileCache = CreateFileCache(sourceFileInfo);
-                _sourceFilesCache.Add(sourceFileCache);
+                _sourceFilesCache.Add(sourceFileInfo.FullName,  sourceFileCache);
             }
 
             if (targetFileCache == null)
             {
                 targetFileCache = CreateFileCache(targetFileInfo);
-                _targetFilesCache.Add(targetFileCache);
+                _targetFilesCache.Add(targetFileInfo.FullName, targetFileCache);
             }
         }
 
@@ -97,39 +101,8 @@ public class Comparator
         byte[] hash = md5.ComputeHash(fileStream);
         return hash;
     }
-    
-    /*
-    bool Md5Compare(FileInfo targetFileInfo, FileInfo sourceFileInfo)
-    {
-        using Stream sourceStream = File.OpenRead(sourceFileInfo.FullName);
-        using Stream targetStream = File.OpenRead(targetFileInfo.FullName);
-        
-        int bufferSize = 32 * 1024;
-        byte[] sourceBuffer = new byte[bufferSize];
-        byte[] targetBuffer = new byte[bufferSize];
-        long length = sourceStream.Length;
-        long position = 0;
-        Console.WriteLine($"Comparing {sourceFileInfo.Name} and {targetFileInfo.Name}");
-        while (true)
-        {
-            int bytesToRead = (int)Math.Min(bufferSize, length - position);
-            sourceStream.ReadExactly(sourceBuffer, 0, bytesToRead);
-            targetStream.ReadExactly(targetBuffer, 0, bytesToRead);
-            
-            if(sourceBuffer.SequenceCompareTo(targetBuffer) != 0)
-            {
-                return false;
-            }
-            
-            position += bytesToRead;
-            if (position == length)
-            {
-                return true;
-            }
-        }
-    }*/
 
-    public bool CompareFile(string sourcePath, string targetPath)
+    private bool CompareFile(string sourcePath, string targetPath)
     {
         FileInfo sourceFileInfo = new FileInfo(sourcePath);
         FileInfo targetFileInfo = new FileInfo(targetPath);
