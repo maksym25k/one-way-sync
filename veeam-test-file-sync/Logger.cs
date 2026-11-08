@@ -14,8 +14,13 @@ public class Logger
         _logPath = logPath;
         if (!File.Exists(_logPath))
         {
-            File.Create(Path.GetDirectoryName(_logPath) + "log.txt").Close();
-            _logPath += "log.txt";
+            string fn = Path.GetFileName(_logPath);
+            if (fn == "")
+            {
+                _logPath += "log.txt";
+            }
+
+            File.Create(_logPath).Close();
         }
     }
 
@@ -33,6 +38,7 @@ public class Logger
     {
         string output = string.Join(Environment.NewLine, _toWrite);
         File.AppendAllText(_logPath, output);
+        _toWrite.Clear();
     }
     
     public void LogFileCreate(string path)
@@ -72,6 +78,7 @@ public class Logger
         _filesCreated = 0; 
         _filesRemoved = 0;
         _filesUpdated = 0;
+        _errorCount = 0;
         string output = Now() + " | SYNC START";
         Console.WriteLine(output);
         AppendToLog(output);
@@ -85,8 +92,10 @@ public class Logger
                         $"ERROR COUNT={_errorCount}";
         Console.WriteLine(output);
         AppendToLog(output);
-        WriteLogBatch();
-        _errorCount = 0;
+        if (_toWrite.Count > 2)
+        {
+            WriteLogBatch();
+        }
     }
 
 }
