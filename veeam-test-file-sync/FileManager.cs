@@ -4,18 +4,12 @@ using System.IO;
 public class FileManager
 {
     private Logger _logger;
-
-
+    
     public FileManager(Logger logger)
     {
         _logger = logger;
     }
-
-    public void SetLogger(Logger logger)
-    {
-        _logger = logger;
-    }
-
+    
     public bool DirectoryExists(string path)
     {
         return Directory.Exists(path);
@@ -37,8 +31,7 @@ public class FileManager
 
         return true;
     }
-
-
+    
     public void RemoveFiles(string[] paths)
     {
         foreach (string path in paths)
@@ -88,7 +81,6 @@ public class FileManager
             try
             {
                 Directory.CreateDirectory(path);
-                _logger.LogFolderCreate(path);
             }
             catch (Exception e)
             {
@@ -105,7 +97,6 @@ public class FileManager
             try
             {
                 Directory.Delete(path, true);
-                _logger.LogFolderDelete(path);
             }
             catch (Exception e)
             {

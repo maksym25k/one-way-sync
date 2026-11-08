@@ -28,22 +28,7 @@ public class Logger
     {
         File.AppendAllText(_logPath, log + Environment.NewLine);
     }
-
-    public void LogFolderDelete(string path)
-    {
-        string output = $"{Now()} | Action=Remove | Type=Folder path={path}";
-        Console.WriteLine(output);
-        WriteIntoLog(output);
-    }
-
-    public void LogFolderCreate(string path)
-    {
-        _foldersAdded++;
-        string output = $"{Now()} | Action=Create | Type=Folder | path={path}";
-        Console.WriteLine(output);
-        WriteIntoLog(output);
-    }
-
+    
     public void LogFileCreate(string path)
     {
         _filesCreated++;
@@ -91,8 +76,6 @@ public class Logger
                         $"{(_filesCreated > 0? "FILES_CREATED=" + _filesCreated + " | " : "")}" +
                         $"{(_filesUpdated > 0? "FILES_UPDATED=" + _filesUpdated + " | " : "")}" +
                         $"{(_filesRemoved > 0? "FILES_REMOVED=" + _filesRemoved + " | " : "")}" +
-                        $"{(_foldersAdded > 0? "FOLDERS_CREATED=" + _foldersAdded + " | " : "")}" +
-                        $"{(_foldersRemoved > 0? "FOLDERS_REMOVED=" + _foldersRemoved + " | " : "")}" +
                         $"ERROR COUNT={_errorCount}";
         Console.WriteLine(output);
         WriteIntoLog(output);

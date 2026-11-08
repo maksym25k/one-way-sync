@@ -61,7 +61,5 @@ public class Synchronizer
         {
             Synchronize(Path.Combine(sourcePath, sourceFolder), Path.Combine(targetPath, sourceFolder));
         }
-        
-        
     }
 }

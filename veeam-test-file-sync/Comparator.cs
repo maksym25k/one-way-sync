@@ -5,8 +5,8 @@ using System.Linq;
 
 public class FileCache
 {
-    public string Path { get; set; }
-    public byte[] Hash { get; set; }
+    public required string Path { get; set; }
+    public required byte[] Hash { get; set; }
     public DateTime LastWriteTimeUtc { get; set; }
     public long Size { get; set; }
 }
@@ -59,6 +59,7 @@ public class Comparator
     {
         FileCache? sourceFileCache = _sourceFilesCache.GetValueOrDefault(sourceFileInfo.FullName);
         FileCache? targetFileCache = _targetFilesCache.GetValueOrDefault(targetFileInfo.FullName);
+        //when files have to be compared in detail, then they are cached first, and after that, their MD5 hash is compared
         try
         {
             if (sourceFileCache == null || targetFileCache == null)
@@ -105,15 +106,14 @@ public class Comparator
         byte[] hash = md5.ComputeHash(fileStream);
         return hash;
         
-       
-            
-}
+    }
 
     private bool CompareFile(string sourcePath, string targetPath)
     {
         FileInfo sourceFileInfo = new FileInfo(sourcePath);
         FileInfo targetFileInfo = new FileInfo(targetPath);
         
+        if (targetFileInfo.Length != sourceFileInfo.Length) return false;
         if (targetFileInfo.Length == sourceFileInfo.Length && targetFileInfo.LastWriteTimeUtc == sourceFileInfo.LastWriteTimeUtc) return true;
         
         return CacheCompare(sourceFileInfo, targetFileInfo);

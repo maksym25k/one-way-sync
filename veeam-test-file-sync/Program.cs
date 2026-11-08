@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 class Program
 {
-    private static int interval;
+    private static int interval = 60000;
     private static string sourcePath;
     private static string targetPath;
     private static string logPath;
-    private static bool syncRunning = false;
+    private static bool? syncRunning = false;
     private static bool cancelled = false;
     private static ManualResetEvent mre = new(false);
     static void ParseArgs(string[] args)
@@ -28,12 +28,8 @@ class Program
         {
             interval = int.Parse(args[3]);
         }
-        else
-        {
-            interval = 60000;
-        }
-        
     }
+    
     static void Main(string[] args)
     {
         try
@@ -80,8 +76,7 @@ class Program
         
         Synchronizer sc = new Synchronizer(logger, fm);
         Console.CancelKeyPress += CancelHandler;
- 
-        int i = 0;
+        
         while (!cancelled)
         {
             logger.LogStart();
