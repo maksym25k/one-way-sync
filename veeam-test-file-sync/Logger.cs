@@ -4,11 +4,10 @@ public class Logger
 {
     private string _logPath;
     private int _errorCount = 0;
-    private int _foldersAdded = 0;
     private int _filesRemoved = 0;
-    private int _foldersRemoved = 0;
     private int _filesUpdated = 0;
     private int _filesCreated = 0;
+    List<string> _toWrite = new();
     
     public Logger(string logPath)
     {
@@ -16,6 +15,7 @@ public class Logger
         if (!File.Exists(_logPath))
         {
             File.Create(Path.GetDirectoryName(_logPath) + "log.txt").Close();
+            _logPath += "log.txt";
         }
     }
 
@@ -24,9 +24,15 @@ public class Logger
         return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
     }
 
-    private void WriteIntoLog(string log)
+    private void AppendToLog(string log)
     {
-        File.AppendAllText(_logPath, log + Environment.NewLine);
+        _toWrite.Add(log);
+    }
+    
+    private void WriteLogBatch()
+    {
+        string output = string.Join(Environment.NewLine, _toWrite);
+        File.AppendAllText(_logPath, output);
     }
     
     public void LogFileCreate(string path)
@@ -34,7 +40,7 @@ public class Logger
         _filesCreated++;
         string output = $"{Now()} | Action=Create | Type=File | path={path}";
         Console.WriteLine(output);
-        WriteIntoLog(output);
+        AppendToLog(output);
     }
 
     public void LogFileDelete(string path)
@@ -42,7 +48,7 @@ public class Logger
         _filesRemoved++;
         string output = $"{Now()} | Action=Remove | Type=File | path={path}";
         Console.WriteLine(output);
-        WriteIntoLog(output);
+        AppendToLog(output);
     }
 
     public void LogFileUpdate(string path)
@@ -50,7 +56,7 @@ public class Logger
         _filesUpdated++;
         string output = $"{Now()} | Action=Update | Type=File | path={path}";
         Console.WriteLine(output);
-        WriteIntoLog(output);
+        AppendToLog(output);
     }
 
     public void Error(string error)
@@ -58,17 +64,17 @@ public class Logger
         _errorCount++;
         string output = Now() + " | ERROR | " + error;
         Console.WriteLine(output);
-        WriteIntoLog(output);
+        AppendToLog(output);
     }
 
     public void LogStart()
     {   
-        _foldersAdded = 0; _foldersRemoved = 0;
-        _filesCreated = 0; _filesRemoved = 0;
+        _filesCreated = 0; 
+        _filesRemoved = 0;
         _filesUpdated = 0;
         string output = Now() + " | SYNC START";
         Console.WriteLine(output);
-        WriteIntoLog(output);
+        AppendToLog(output);
     }
     public void LogEnd()
     {
@@ -78,7 +84,8 @@ public class Logger
                         $"{(_filesRemoved > 0? "FILES_REMOVED=" + _filesRemoved + " | " : "")}" +
                         $"ERROR COUNT={_errorCount}";
         Console.WriteLine(output);
-        WriteIntoLog(output);
+        AppendToLog(output);
+        WriteLogBatch();
         _errorCount = 0;
     }
 
