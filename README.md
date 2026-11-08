@@ -3,10 +3,15 @@
 This is a console app created using C#, which synchronizes two folders - source and target. 
 
 Synchronization is one way only, meaning changes are syncrhonized only into the target folder, not the other way around.
+
 The app logs changes and errors into the log file in the destination provided on startup and into the console.
+
 After start, the app runs periodically, each new syncrhonization starts an x amount of ms after the previous one. 
+
 The sync interval is provided by the user on startup.
+
 The app uses lazy caching, so the amount of disk reads required is minimal.
+
 The comparator assumes, that if file size and the time it was last written into are the same for both files, they are the same.
 
 ## Run args
