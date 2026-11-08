@@ -15,11 +15,15 @@ The app uses lazy caching, so the amount of disk reads required is minimal.
 The comparator assumes, that if file size and the time it was last written into are the same for both files, they are the same.
 
 ## Run args
-To run this app you need to provide:
+To run this app you need to provide arguments in this order:
 - Source folder (path)
 - Target folder (path)
 - Log path (If there is no file specified in the path, Log.txt will be created) 
 - Interval (ms) interval between runs. The default value is 60000ms or 60s
+
+```bash
+./app ../source ../target ./log.txt 5000
+```
 
 ## Prerequisites:
 - Windows or Linux
