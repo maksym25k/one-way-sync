@@ -91,8 +91,10 @@ public class Comparator
         catch (IOException)
         {
             _logger.Error($"Could not compare files {sourceFileInfo.FullName} to {targetFileInfo.FullName}");
+            _sourceFilesCache.Remove(sourceFileInfo.FullName);
+            _targetFilesCache.Remove(targetFileInfo.FullName);
             //True because then there will be no attempt to update the files until the next run
-            return true;
+            return false;
         }
 
         return sourceFileCache.Hash.SequenceEqual(targetFileCache.Hash);

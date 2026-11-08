@@ -54,7 +54,17 @@ public class FileManager
         {
             try
             {
-                File.Copy(sourcePaths[i], targetPaths[i], true);
+                FileInfo sourceFileInfo = new FileInfo(sourcePaths[i]);
+                if (sourceFileInfo.LinkTarget != null)
+                {
+                    File.Delete(targetPaths[i]);
+                    File.CreateSymbolicLink(targetPaths[i], sourceFileInfo.LinkTarget);
+                }
+                else
+                {
+                    File.Copy(sourcePaths[i], targetPaths[i], true);
+                }
+
                 File.SetLastWriteTime(sourcePaths[i], File.GetLastWriteTime(targetPaths[i])); 
                 
                 if (mode == "Create")

@@ -6,10 +6,12 @@ public class Synchronizer
     
     private readonly FileManager _fm;
     private readonly Comparator _comparator;
+    private readonly Logger _logger;
     public Synchronizer(Logger logger, FileManager fm)
     {
         _fm = fm;
         _comparator  = new Comparator(logger);
+        _logger = logger;
     }
     
     private string[] GetRelativePaths(string relativeTo, string[] paths)
@@ -34,6 +36,11 @@ public class Synchronizer
     
     public void Synchronize(string sourcePath, string targetPath)
     {
+        if (!Directory.Exists(targetPath) || !Directory.Exists(sourcePath))
+        {
+            _logger.Error("Target or Source directory can not be found.");
+            throw new Exception("Target or Source directory can not be found.");
+        }
         string [] sourceFiles = GetRelativePaths(sourcePath, Directory.GetFiles(sourcePath, "*", SearchOption.TopDirectoryOnly));
         string [] targetFiles = GetRelativePaths(targetPath, Directory.GetFiles(targetPath, "*", SearchOption.TopDirectoryOnly));
         

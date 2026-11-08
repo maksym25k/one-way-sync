@@ -75,9 +75,7 @@ class Program
         
         while (!cancelled)
         {
-            logger.LogStart();
             sc.Synchronize(sourcePath, targetPath);
-            logger.LogEnd();
             if (!cancelled)
             {
                 mre.WaitOne(interval);

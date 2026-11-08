@@ -31,15 +31,9 @@ public class Logger
 
     private void AppendToLog(string log)
     {
-        _toWrite.Add(log);
+        File.AppendAllText(_logPath, log);
     }
     
-    private void WriteLogBatch()
-    {
-        string output = string.Join(Environment.NewLine, _toWrite);
-        File.AppendAllText(_logPath, output);
-        _toWrite.Clear();
-    }
     
     public void LogFileCreate(string path)
     {
@@ -73,29 +67,6 @@ public class Logger
         AppendToLog(output);
     }
 
-    public void LogStart()
-    {   
-        _filesCreated = 0; 
-        _filesRemoved = 0;
-        _filesUpdated = 0;
-        _errorCount = 0;
-        string output = Now() + " | SYNC START";
-        Console.WriteLine(output);
-        AppendToLog(output);
-    }
-    public void LogEnd()
-    {
-        string output = Now() + $" | SYNC END | " +
-                        $"{(_filesCreated > 0? "FILES_CREATED=" + _filesCreated + " | " : "")}" +
-                        $"{(_filesUpdated > 0? "FILES_UPDATED=" + _filesUpdated + " | " : "")}" +
-                        $"{(_filesRemoved > 0? "FILES_REMOVED=" + _filesRemoved + " | " : "")}" +
-                        $"ERROR COUNT={_errorCount}";
-        Console.WriteLine(output);
-        AppendToLog(output);
-        if (_toWrite.Count > 2)
-        {
-            WriteLogBatch();
-        }
-    }
+    
 
 }
