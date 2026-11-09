@@ -26,5 +26,6 @@ To run this app you need to provide arguments in this order:
 ```
 
 ## Updates tbd
-- Caching and or comparing files using MD5 seems cool but its not really saving very much time and IO and adds complexity.
-I will probably remove it from the Comparator and check only for timestamps and length difference.
+- Caching and or comparing files using MD5 seem cool but its not really saving very much time and IO and adds complexity.
+I will probably remove it from the Comparator and check only for timestamp and length difference.
+- Adding the argument parser, so the args are provided like this --source=./ --target=./ etc.
