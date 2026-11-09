@@ -25,6 +25,3 @@ To run this app you need to provide arguments in this order:
 ./app ../source ../target ./log.txt 5000
 ```
 
-## Prerequisites:
-- Windows or Linux
-- .NET 10.0
